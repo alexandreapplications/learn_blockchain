@@ -1,5 +1,5 @@
 let web3Connector;
-const contractAddress = "0x876301501b019286Ed6c5198675756f8cd743545";
+const contractAddresses = ["0x876301501b019286Ed6c5198675756f8cd743545"];
 const contractAbi = [
     {
         "inputs": [],
@@ -178,60 +178,72 @@ async function getBalance(account) {
     return web3Connector.utils.fromWei(balance, "ether");
 }
 
-async function getMessage() {
+async function getMessage(containerName, contractAddress) {
     const contract = new web3Connector.eth.Contract(contractAbi, contractAddress);
+
     const articleName = await contract.methods.articleName().call();
-    const elementMessage0 = document.getElementById("articleName");
-    elementMessage0.innerText = articleName;
-    const setArticleNameText = document.getElementById("setArticleNameText");
-    setArticleNameText.value = articleName
+    $(`${containerName} .articleName`).text(articleName)
 
     const articleDescription = await contract.methods.articleDescription().call();
-    const elementMessage1 = document.getElementById("articleDescription");
-    elementMessage1.innerText = articleDescription;
-    const setArticleDescriptionText = document.getElementById("setArticleDescriptionText");
-    setArticleDescriptionText.value = articleDescription;
-
+    $(`${containerName} .articleDescription`).text(articleDescription)
+    
     const highestBid = await contract.methods.highestBid().call();
-    const highestBidSpan = document.getElementById("highestBidSpan");
-    highestBidSpan.innerText = highestBid;
-
+    $(`${containerName} .highestBidSpan`).text(highestBid)
+    $(`${containerName} .highestBidText`).val(highestBid)
+    
     const highestBidder = await contract.methods.highestBidder().call();
-    const highestBidderSpan = document.getElementById("highestBidderSpan");
-    highestBidderSpan.innerText = highestBidder;
-
+    $(`${containerName} .highestBidderSpan`).text(highestBidder)
+    $(`${containerName} .highestBidderText`).val(highestBidder)
+    
     const imageUrl = await contract.methods.articleImageUrl().call();
-    const imageUrl2 = document.getElementById("imageUrl2");
-    imageUrl2.src = imageUrl;
-    const setImageUrlText = document.getElementById("setImageUrlText");
-    setImageUrlText.value = imageUrl;
+    $(`${containerName} .imageUrl`).attr('src', imageUrl)
+    
+    $(`${containerName} .contractAddress`).val(contractAddress)
+    
+    $(`${containerName} .bidButton`).click(function() {
+        const bidValue = $(`${containerName} .bidValue`).val()
+        doBid(contractAddress, bidValue)
+    })
+    $(`${containerName} .refreshBtn`).click(function() {
+        getMessage(containerName, contractAddress)
+    }).text("Refresh")
+    $(`${containerName} .editBtn`).click(function() {
+        setEditable(containerName, contractAddress)
+    })
+
+    $(`${containerName} .refreshBtn`).text("Refresh")
+    $(`${containerName} .saveBtn`).hide()
+    $(`${containerName} .editBtn`).show()
+    $(`${containerName} .articleDescription`).attr("disabled", "disabled")
+
 }
 
-async function setArticleDescription() {
-    const setArticleDescriptionText = document.getElementById("setArticleDescriptionText");
-    const articleDescription = setArticleDescriptionText.value;
-    alert("Article Description: " + articleDescription);
+async function setEditable(containerName, contractAddress) {
+    $(`${containerName} .articleDescription`).removeAttr("disabled")
+    $(`${containerName} .editBtn`).hide()
+    $(`${containerName} .refreshBtn`).text("Cancel")
+    $(`${containerName} .saveBtn`).show()
+    $(`${containerName} .saveBtn`).click(function() {
+        setArticleDescription(containerName, contractAddress)
+        getMessage(containerName, contractAddress)
+    })
+}
 
-    const elementAccount = document.getElementById("account");
-    const account = elementAccount.innerText;
-    alert("Account Description: " + account);
-    alert("Contract Address: " + contractAddress);
-
+async function setArticleDescription(containerName, contractAddress) {
+    const articleDescription = $(`${containerName} .articleDescription`).text();
     const contract = new web3Connector.eth.Contract(contractAbi, contractAddress);
-    await contract.methods.setArticleDescription(articleDescription).send({ from: account });
+    await contract.methods.setArticleDescription(articleDescription).send({ from: contractAddress });
 }
 
-async function doBid() {
-    const bidValue = document.getElementById("bidValue").value;
-
+async function doBid(contractAddress, bidValue) {
     const weis = web3Connector.utils.toWei(bidValue, "finney");
 
-    const elementAccount = document.getElementById("account");
-    const account = elementAccount.innerText;
+    const account = selectedAccount();
     const contract = new web3Connector.eth.Contract(contractAbi, contractAddress);
     await contract.methods.bid().send({ from: account, value: weis });
 }
 
 $(document).ready(function() {
     connectToWallet();
+    getMessage('#audition', contractAddresses[0]);
 })
