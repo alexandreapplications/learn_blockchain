@@ -8,6 +8,7 @@ contract MyAction {
     address auctionOwner;
     address public highestBidder;
     uint256 public highestBid;
+    bool public auctionEnded;
 
     // events
     event HighestBidIncreased (address newBidder, uint256 newBid);
@@ -28,7 +29,12 @@ contract MyAction {
         require(msg.sender == auctionOwner, "You are not the owner");
         _;
     }
-    function bid() public payable {
+    modifier auctionNotEnded() {
+        require(!auctionEnded);
+        _;
+    }
+
+    function bid() public payable auctionNotEnded {
         require(msg.value > 0, "Valor tem que ser maior que ZERO");
         require(
             msg.value > highestBid,
@@ -45,23 +51,25 @@ contract MyAction {
         highestBidder = msg.sender;
         emit HighestBidIncreased(highestBidder, highestBid);
     }
-    function payOwner() public payable onlyOwner {
+    function endAuction() public payable onlyOwner auctionNotEnded {
         address contractAddress = address(this);
         uint256 contractBalance = contractAddress.balance;
         require(contractBalance > 0, "Balance is 0");
         payable(auctionOwner).transfer(contractBalance);
         emit AuctionEnded(highestBidder, highestBid);
+        auctionEnded = true;
         // Reset value since we now transfered the whole balance
         highestBid = 0;
     }
     function setArticleDescription(string memory newArticleDescription)
         public
         onlyOwner
+        auctionNotEnded
     {
         articleDescription = newArticleDescription;
     }
 
-    function setArticleImageUrl(string memory newArticleImageUrl) public {
+    function setArticleImageUrl(string memory newArticleImageUrl) public onlyOwner auctionNotEnded {
         articleImageUrl = newArticleImageUrl;
     }
 }

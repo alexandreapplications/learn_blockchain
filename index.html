@@ -30,48 +30,55 @@
                     </select>
                     <hr />
                     <div class="card mb-9" id="audition">
-                        <input type="hidden" class="contractAddress" value="" />
-                        <div class="row g-0">
-                            <div class="col-md-4">
-                                <img src="" class="img-fluid rounded-start imageUrl" />
-                            </div>
-                            <div class="col-md-8">
-                                <div class="card-body">
-                                    <h5 class="card-title articleName"></h5>
-                                    <div class="card-text">
-                                        <textarea rows="8" class="form-control articleDescription" disabled></textarea>
+                        <form onsubmit="return submitBid(this)">
+                            <input type="hidden" class="contractAddress" value="" />
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    <img src="" class="img-fluid rounded-start imageUrl" />
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <h5 class="card-title articleName"></h5>
+                                        <div class="card-text">
+                                            <textarea rows="8" class="form-control articleDescription"
+                                                disabled></textarea>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row g-0">
-                            <div class="col-6">
-                                <div class="form-control">
-                                    <label>Highest bidder:</label>
-                                    <input type="text" class="form-control highestBidderText" readonly value="" />
+                            <div class="row g-0">
+                                <div class="col-6">
+                                    <div class="form-control">
+                                        <label>Highest bidder:</label>
+                                        <input type="text" class="form-control highestBidderText" readonly value="" />
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="form-control">
-                                    <label>Highest bid:</label>
-                                    <input type="text" class="form-control highestBidText"  readonly value="" />
+                                <div class="col-3">
+                                    <div class="form-control">
+                                        <label>Highest bid:</label>
+                                        <input type="text" class="form-control highestBidText" readonly value="" />
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-3">
-                                <div class="form-control">
-                                    <label>Make a bid:</label>
-                                    <div class="input-group">
-                                        <input type="number" class="bidValue form-control" placeholder="finney"
-                                            value="" />
-                                        <button class="btn btn-primary bidButton" type="button">Bid</button>
+                                <div class="col-3">
+                                    <div class="form-control">
+                                        <label>Make a bid:</label>
+                                        <div class="input-group">
+                                            <input type="number" class="bidValue form-control" placeholder="finney"
+                                                value="" />
+                                            <button class="btn btn-primary bidButton" type="submit">Bid</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </form>
+                        <div class="alert alert-warning auctionEnded" style="display: none;" role="alert">
+                            This auction has ended
                         </div>
-                        <div class="card-footer">
-                            <button class="btn btn-primary refreshBtn" type="button">Refresh</button>
-                            <button class="btn btn-primary editBtn" type="button">Edit</button>
-                            <button class="btn btn-primary saveBtn" style="display: none;" type="button">Save</button>
+                        <div class="alert alert-primary auctionOpen" style="display: none;" role="alert">
+                            This auction is open
+                        </div>
+                        <div class="card-footer auctionOpen">
+                            <button class="btn btn-primary" onclick="endAuction(this)" type="button">End Auction</button>
                         </div>
                     </div>
                 </section>
